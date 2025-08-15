@@ -84,7 +84,7 @@ if "!dns_ok!"=="FAIL" echo - DNS resolution failed - Check DNS settings
 if "!port443_ok!"=="FAIL" echo - HTTPS blocked - Check firewall rules
 if "!port80_ok!"=="FAIL" echo - HTTP blocked - Check firewall rules
 echo.
-echo TROUBLESHOOTING STEPS:
+echo MANUAL TROUBLESHOOTING STEPS:
 echo 1. netsh winsock reset
 echo 2. ipconfig /flushdns
 echo 3. netsh int ip reset
