@@ -1,9 +1,9 @@
 #!/usr/bin/env php
 <?php
 
-require_once 'LinuxTroubleshooter.php';
+require_once 'WindowsTroubleshooter.php';
 
-$troubleshooter = new LinuxTroubleshooter();
+$troubleshooter = new WindowsTroubleshooter();
 
 if ($argc > 1) {
     switch ($argv[1]) {
@@ -31,31 +31,31 @@ if ($argc > 1) {
         case 'firewall':
             $troubleshooter->testFirewallPorts();
             break;
+        case 'windows-firewall':
+            $troubleshooter->checkWindowsFirewall();
+            break;
         case 'devices':
             $troubleshooter->displayConnectedDevices();
-            break;
-        case 'security':
-            $troubleshooter->checkSecurityModules();
             break;
         case 'summary':
             $troubleshooter->runAllTests();
             break;
         case 'help':
-            echo "Usage: php troubleshoot.php [command]\n";
+            echo "Usage: php windows_troubleshoot.php [command]\n";
             echo "Commands:\n";
-            echo "  os           - Show OS information\n";
-            echo "  interfaces   - Show network interfaces\n";
-            echo "  gateway      - Show default gateway\n";
-            echo "  dns          - Show DNS servers\n";
-            echo "  ping-gateway - Ping default gateway\n";
-            echo "  ping-external- Ping 8.8.8.8\n";
-            echo "  ping-dns     - Ping google.com\n";
-            echo "  firewall     - Test ports 80/443\n";
-            echo "  security     - Check AppArmor/SELinux\n";
-            echo "  devices      - Show connected devices\n";
-            echo "  summary      - Run all tests with summary\n";
-            echo "  help         - Show this help\n";
-            echo "  (no args)    - Run all tests\n";
+            echo "  os               - Show OS information\n";
+            echo "  interfaces       - Show network interfaces\n";
+            echo "  gateway          - Show default gateway\n";
+            echo "  dns              - Show DNS servers\n";
+            echo "  ping-gateway     - Ping default gateway\n";
+            echo "  ping-external    - Ping 8.8.8.8\n";
+            echo "  ping-dns         - Ping google.com\n";
+            echo "  firewall         - Test ports 80/443\n";
+            echo "  windows-firewall - Check Windows Firewall\n";
+            echo "  devices          - Show connected devices\n";
+            echo "  summary          - Run all tests with summary\n";
+            echo "  help             - Show this help\n";
+            echo "  (no args)        - Run all tests\n";
             break;
         default:
             echo "Unknown command. Use 'help' for available commands.\n";

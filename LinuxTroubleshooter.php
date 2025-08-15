@@ -2,6 +2,8 @@
 
 class LinuxTroubleshooter
 {
+    private $issues = [];
+    private $checks = [];
     public function printOsVersion()
     {
         echo "=== OS Information ===\n";
@@ -9,6 +11,8 @@ class LinuxTroubleshooter
         $version = shell_exec('cat /etc/os-release | grep PRETTY_NAME');
         echo "System: " . trim($os) . "\n";
         echo trim($version) . "\n\n";
+        $this->checks['os'] = !empty($os) ? 'PASS' : 'FAIL';
+        if (empty($os)) $this->issues[] = 'OS information unavailable';
     }
 
     public function printInterfaces()
@@ -39,8 +43,14 @@ class LinuxTroubleshooter
         if ($gateway) {
             $result = shell_exec("ping -c 4 $gateway");
             echo $result . "\n";
+            $this->checks['gateway_ping'] = strpos($result, '0% packet loss') !== false ? 'PASS' : 'FAIL';
+            if (strpos($result, '0% packet loss') === false) {
+                $this->issues[] = 'Gateway unreachable - Check network cable/WiFi connection';
+            }
         } else {
             echo "No gateway found\n\n";
+            $this->checks['gateway_ping'] = 'FAIL';
+            $this->issues[] = 'No default gateway configured - Check network settings';
         }
     }
 
@@ -49,6 +59,10 @@ class LinuxTroubleshooter
         echo "=== External Connectivity Test (8.8.8.8) ===\n";
         $result = shell_exec('ping -c 4 8.8.8.8');
         echo $result . "\n";
+        $this->checks['external_ping'] = strpos($result, '0% packet loss') !== false ? 'PASS' : 'FAIL';
+        if (strpos($result, '0% packet loss') === false) {
+            $this->issues[] = 'No external connectivity - Check firewall/ISP connection';
+        }
     }
 
     public function pingDnsResolution()
@@ -56,6 +70,10 @@ class LinuxTroubleshooter
         echo "=== DNS Resolution Test (google.com) ===\n";
         $result = shell_exec('ping -c 4 google.com');
         echo $result . "\n";
+        $this->checks['dns_resolution'] = strpos($result, '0% packet loss') !== false ? 'PASS' : 'FAIL';
+        if (strpos($result, '0% packet loss') === false) {
+            $this->issues[] = 'DNS resolution failed - Check DNS servers (8.8.8.8, 1.1.1.1)';
+        }
     }
 
     public function testFirewallPorts()
@@ -65,10 +83,19 @@ class LinuxTroubleshooter
         echo "Testing HTTPS (443) to google.com:\n";
         $https = shell_exec('timeout 10 bash -c "echo >/dev/tcp/google.com/443" 2>&1 && echo "Port 443 open" || echo "Port 443 blocked"');
         echo trim($https) . "\n\n";
+        $this->checks['port_443'] = strpos($https, 'open') !== false ? 'PASS' : 'FAIL';
         
         echo "Testing HTTP (80) to google.com:\n";
         $http = shell_exec('timeout 10 bash -c "echo >/dev/tcp/google.com/80" 2>&1 && echo "Port 80 open" || echo "Port 80 blocked"');
         echo trim($http) . "\n\n";
+        $this->checks['port_80'] = strpos($http, 'open') !== false ? 'PASS' : 'FAIL';
+        
+        if (strpos($https, 'open') === false) {
+            $this->issues[] = 'HTTPS (443) blocked - Check firewall rules';
+        }
+        if (strpos($http, 'open') === false) {
+            $this->issues[] = 'HTTP (80) blocked - Check firewall rules';
+        }
     }
 
     public function displayConnectedDevices()
@@ -109,6 +136,34 @@ class LinuxTroubleshooter
         echo "\n";
     }
 
+    public function printSummary()
+    {
+        echo "\n=== TROUBLESHOOTING SUMMARY ===\n";
+        echo "Status Checks:\n";
+        foreach ($this->checks as $check => $status) {
+            $symbol = $status === 'PASS' ? '✓' : '✗';
+            echo "  $symbol " . ucwords(str_replace('_', ' ', $check)) . ": $status\n";
+        }
+        
+        if (!empty($this->issues)) {
+            echo "\nISSUES FOUND:\n";
+            foreach ($this->issues as $i => $issue) {
+                echo "  " . ($i + 1) . ". $issue\n";
+            }
+            
+            echo "\nTROUBLESHOOTING STEPS:\n";
+            echo "  1. Check physical connections (cables, WiFi)\n";
+            echo "  2. Restart network service: sudo systemctl restart networking\n";
+            echo "  3. Check firewall: sudo ufw status\n";
+            echo "  4. Flush DNS: sudo systemctl restart systemd-resolved\n";
+            echo "  5. Check routes: ip route show\n";
+            echo "  6. Contact network administrator if issues persist\n";
+        } else {
+            echo "\n✓ All network tests PASSED!\n";
+        }
+        echo "\n";
+    }
+
     public function runAllTests()
     {
         echo "Linux System Network Troubleshooter\n";
@@ -124,5 +179,6 @@ class LinuxTroubleshooter
         $this->testFirewallPorts();
         $this->checkSecurityModules();
         $this->displayConnectedDevices();
+        $this->printSummary();
     }
 }
