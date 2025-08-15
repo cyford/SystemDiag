@@ -82,6 +82,33 @@ class LinuxTroubleshooter
         echo $netstat . "\n";
     }
 
+    public function checkSecurityModules()
+    {
+        echo "=== Security Modules Status ===\n";
+        
+        // Check SELinux
+        echo "SELinux Status:\n";
+        $selinux = shell_exec('which getenforce > /dev/null 2>&1 && getenforce || echo "SELinux not installed"');
+        echo trim($selinux) . "\n";
+        
+        if (trim($selinux) !== "SELinux not installed") {
+            $sestatus = shell_exec('sestatus 2>/dev/null | head -5');
+            echo $sestatus;
+        }
+        
+        // Check AppArmor
+        echo "\nAppArmor Status:\n";
+        $apparmor = shell_exec('which aa-status > /dev/null 2>&1 && aa-status --enabled && echo "AppArmor enabled" || echo "AppArmor disabled/not installed"');
+        echo trim($apparmor) . "\n";
+        
+        if (strpos($apparmor, "enabled") !== false) {
+            $aa_profiles = shell_exec('aa-status 2>/dev/null | head -10');
+            echo $aa_profiles;
+        }
+        
+        echo "\n";
+    }
+
     public function runAllTests()
     {
         echo "Linux System Network Troubleshooter\n";
@@ -95,6 +122,7 @@ class LinuxTroubleshooter
         $this->pingExternal();
         $this->pingDnsResolution();
         $this->testFirewallPorts();
+        $this->checkSecurityModules();
         $this->displayConnectedDevices();
     }
 }

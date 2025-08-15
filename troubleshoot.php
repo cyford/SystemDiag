@@ -34,6 +34,9 @@ if ($argc > 1) {
         case 'devices':
             $troubleshooter->displayConnectedDevices();
             break;
+        case 'security':
+            $troubleshooter->checkSecurityModules();
+            break;
         case 'help':
             echo "Usage: php troubleshoot.php [command]\n";
             echo "Commands:\n";
@@ -45,6 +48,7 @@ if ($argc > 1) {
             echo "  ping-external- Ping 8.8.8.8\n";
             echo "  ping-dns     - Ping google.com\n";
             echo "  firewall     - Test ports 80/443\n";
+            echo "  security     - Check AppArmor/SELinux\n";
             echo "  devices      - Show connected devices\n";
             echo "  help         - Show this help\n";
             echo "  (no args)    - Run all tests\n";
