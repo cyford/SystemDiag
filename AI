@@ -1,0 +1,18 @@
+this is php cli  ,
+its setup    is to print   system details and give check points  to network failures.
+ we will first create a linux class  that ill do the following
+
+
+1)  print os  and version
+2)  print interfaces / ips
+3)  print gateway
+4)  Print Dns servers
+4)  ping gateway
+5)  ping 8.8.8.8  to test outside connectivity
+6)  ping google.com  to test dns resolution
+7)  test firewalls  buy  test port 443 https://google.com and port 80  http://google.com
+
+8)  display connected devices
+
+
+now make a docker file that will create an environment to test it
