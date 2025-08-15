@@ -14,5 +14,7 @@ its setup    is to print   system details and give check points  to network fail
 
 8)  display connected devices
 
+add pass/fail summery
+create windows CMD file to test all this with detailed summery aswell
 
 now make a docker file that will create an environment to test it
