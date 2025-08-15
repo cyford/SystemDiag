@@ -4,12 +4,14 @@ class WindowsTroubleshooter
 {
     private $issues = [];
     private $checks = [];
+    private $systemInfo = [];
     public function printOsVersion()
     {
         echo "=== OS Information ===\n";
         $os = shell_exec('systeminfo | findstr /B /C:"OS Name" /C:"OS Version"');
         echo $os . "\n";
         $this->checks['os'] = !empty($os) ? 'PASS' : 'FAIL';
+        $this->systemInfo['os'] = trim($os);
         if (empty($os)) $this->issues[] = 'OS information unavailable';
     }
 
@@ -18,6 +20,7 @@ class WindowsTroubleshooter
         echo "=== Network Interfaces ===\n";
         $interfaces = shell_exec('ipconfig /all');
         echo $interfaces . "\n";
+        $this->systemInfo['interfaces'] = trim($interfaces);
     }
 
     public function printGateway()
@@ -25,6 +28,8 @@ class WindowsTroubleshooter
         echo "=== Default Gateway ===\n";
         $gateway = shell_exec('route print 0.0.0.0');
         echo $gateway . "\n";
+        $gatewayIp = trim(shell_exec('for /f "tokens=3" %i in (\'route print ^| findstr "0.0.0.0.*0.0.0.0"\') do @echo %i'));
+        $this->systemInfo['gateway'] = $gatewayIp ?: 'Not found';
     }
 
     public function printDnsServers()
@@ -32,6 +37,7 @@ class WindowsTroubleshooter
         echo "=== DNS Servers ===\n";
         $dns = shell_exec('nslookup google.com | findstr "Server:"');
         echo $dns . "\n";
+        $this->systemInfo['dns'] = trim($dns);
     }
 
     public function pingGateway()
@@ -116,8 +122,22 @@ class WindowsTroubleshooter
 
     public function printSummary()
     {
-        echo "\n=== TROUBLESHOOTING SUMMARY ===\n";
-        echo "Status Checks:\n";
+        echo "\n=== SYSTEM DETAILS SUMMARY ===\n";
+        echo "OS: " . ($this->systemInfo['os'] ?? 'Unknown') . "\n";
+        echo "Gateway: " . ($this->systemInfo['gateway'] ?? 'Not found') . "\n";
+        echo "DNS: " . ($this->systemInfo['dns'] ?? 'Not configured') . "\n";
+        
+        echo "\n=== NETWORK INTERFACES (Summary) ===\n";
+        $interfaces = $this->systemInfo['interfaces'] ?? 'No interfaces found';
+        // Show only active adapters summary
+        $lines = explode("\n", $interfaces);
+        foreach ($lines as $line) {
+            if (strpos($line, 'adapter') !== false || strpos($line, 'IPv4') !== false) {
+                echo trim($line) . "\n";
+            }
+        }
+        
+        echo "\n=== TEST RESULTS ===\n";
         foreach ($this->checks as $check => $status) {
             $symbol = $status === 'PASS' ? 'v' : 'X';
             echo "  $symbol " . ucwords(str_replace('_', ' ', $check)) . ": $status\n";

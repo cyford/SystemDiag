@@ -68,14 +68,29 @@ netstat -an | findstr LISTENING
 echo.
 
 echo ========================================
-echo TROUBLESHOOTING SUMMARY
+echo SYSTEM DETAILS SUMMARY
 echo ========================================
 echo.
+echo OS Information:
+systeminfo | findstr /B /C:"OS Name" /C:"OS Version"
+echo.
+echo Gateway:
+for /f "tokens=3" %%i in ('route print ^| findstr "0.0.0.0.*0.0.0.0"') do echo %%i
+echo.
+echo DNS Server:
+nslookup google.com | findstr "Server:"
+echo.
+echo Active Network Adapters:
+ipconfig | findstr /C:"adapter" /C:"IPv4"
+echo.
+echo ========================================
+echo TEST RESULTS
+echo ========================================
 if "!gateway_ok!"=="PASS" (echo [X] Gateway Ping - PASS) else (echo [!] Gateway Ping - FAIL)
 if "!external_ok!"=="PASS" (echo [X] External Connectivity - PASS) else (echo [!] External Connectivity - FAIL)
 if "!dns_ok!"=="PASS" (echo [X] DNS Resolution - PASS) else (echo [!] DNS Resolution - FAIL)
-if "!port443_ok!"=="PASS" (echo [X] (FIREWALL TEST) HTTPS Port 443 - PASS) else (echo [!] HTTPS Port 443 - FAIL)
-if "!port80_ok!"=="PASS" (echo [X] (FIREWALL TEST) HTTP Port 80 - PASS) else (echo [!] HTTP Port 80 - FAIL)
+if "!port443_ok!"=="PASS" (echo [X] HTTPS Port 443 - PASS) else (echo [!] HTTPS Port 443 - FAIL)
+if "!port80_ok!"=="PASS" (echo [X] HTTP Port 80 - PASS) else (echo [!] HTTP Port 80 - FAIL)
 echo.
 echo ISSUES FOUND:
 if "!gateway_ok!"=="FAIL" echo - Gateway unreachable - Check network connection

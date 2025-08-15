@@ -4,6 +4,7 @@ class LinuxTroubleshooter
 {
     private $issues = [];
     private $checks = [];
+    private $systemInfo = [];
     public function printOsVersion()
     {
         echo "=== OS Information ===\n";
@@ -12,6 +13,8 @@ class LinuxTroubleshooter
         echo "System: " . trim($os) . "\n";
         echo trim($version) . "\n\n";
         $this->checks['os'] = !empty($os) ? 'PASS' : 'FAIL';
+        $this->systemInfo['os'] = trim($os);
+        $this->systemInfo['version'] = trim($version);
         if (empty($os)) $this->issues[] = 'OS information unavailable';
     }
 
@@ -20,6 +23,7 @@ class LinuxTroubleshooter
         echo "=== Network Interfaces ===\n";
         $interfaces = shell_exec('ip addr show | grep -E "^[0-9]+:|inet "');
         echo $interfaces . "\n";
+        $this->systemInfo['interfaces'] = trim($interfaces);
     }
 
     public function printGateway()
@@ -27,6 +31,7 @@ class LinuxTroubleshooter
         echo "=== Default Gateway ===\n";
         $gateway = shell_exec('ip route | grep default');
         echo trim($gateway) . "\n\n";
+        $this->systemInfo['gateway'] = trim($gateway);
     }
 
     public function printDnsServers()
@@ -34,6 +39,7 @@ class LinuxTroubleshooter
         echo "=== DNS Servers ===\n";
         $dns = shell_exec('cat /etc/resolv.conf | grep nameserver');
         echo $dns . "\n";
+        $this->systemInfo['dns'] = trim($dns);
     }
 
     public function pingGateway()
@@ -138,8 +144,16 @@ class LinuxTroubleshooter
 
     public function printSummary()
     {
-        echo "\n=== TROUBLESHOOTING SUMMARY ===\n";
-        echo "Status Checks:\n";
+        echo "\n=== SYSTEM DETAILS SUMMARY ===\n";
+        echo "OS: " . ($this->systemInfo['os'] ?? 'Unknown') . "\n";
+        echo "Version: " . ($this->systemInfo['version'] ?? 'Unknown') . "\n";
+        echo "Gateway: " . ($this->systemInfo['gateway'] ?? 'Not found') . "\n";
+        echo "DNS: " . ($this->systemInfo['dns'] ?? 'Not configured') . "\n";
+        
+        echo "\n=== NETWORK INTERFACES ===\n";
+        echo ($this->systemInfo['interfaces'] ?? 'No interfaces found') . "\n";
+        
+        echo "\n=== TEST RESULTS ===\n";
         foreach ($this->checks as $check => $status) {
             $symbol = $status === 'PASS' ? '✓' : '✗';
             echo "  $symbol " . ucwords(str_replace('_', ' ', $check)) . ": $status\n";
