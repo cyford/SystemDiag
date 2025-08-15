@@ -89,8 +89,8 @@ echo ========================================
 if "!gateway_ok!"=="PASS" (echo [X] Gateway Ping - PASS) else (echo [!] Gateway Ping - FAIL)
 if "!external_ok!"=="PASS" (echo [X] External Connectivity - PASS) else (echo [!] External Connectivity - FAIL)
 if "!dns_ok!"=="PASS" (echo [X] DNS Resolution - PASS) else (echo [!] DNS Resolution - FAIL)
-if "!port443_ok!"=="PASS" (echo [X] HTTPS Port 443 - PASS) else (echo [!] HTTPS Port 443 - FAIL)
-if "!port80_ok!"=="PASS" (echo [X] HTTP Port 80 - PASS) else (echo [!] HTTP Port 80 - FAIL)
+if "!port443_ok!"=="PASS" (echo [X] (FIREWALL TEST) HTTPS Port 443 - PASS) else (echo [!] HTTPS Port 443 - FAIL)
+if "!port80_ok!"=="PASS"  (echo [X]  (FIREWALL TEST) HTTP Port 80 - PASS) else (echo [!] HTTP Port 80 - FAIL)
 echo.
 echo ISSUES FOUND:
 if "!gateway_ok!"=="FAIL" echo - Gateway unreachable - Check network connection
